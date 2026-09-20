@@ -2,6 +2,13 @@
 
 玻璃拟态（极光玻璃）单页个人主页，**纯静态**，可直接部署到 Cloudflare Pages / GitHub Pages / 任意静态托管。
 
+| | |
+| --- | --- |
+| **线上地址** | <https://wwwrrr-6we.pages.dev> |
+| **GitHub 仓库** | <https://github.com/SZHNB886/wangrui>（另有镜像 <https://github.com/SZHNB886/wwwrrr>） |
+| **托管** | Cloudflare Pages（连接 GitHub，push 后自动重建） |
+| **日常更新** | 双击项目里的 `发布更新.cmd` |
+
 ---
 
 ## 一、目录结构
