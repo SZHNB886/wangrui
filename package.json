@@ -1,0 +1,11 @@
+{
+  "name": "wangrui-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "王睿的个人主页 —— 玻璃拟态单页站点（可静态托管）",
+  "scripts": {
+    "dev": "node server.js",
+    "photos": "node build-photos.js",
+    "deploy": "npx wrangler pages deploy public --project-name=wangrui-site"
+  }
+}

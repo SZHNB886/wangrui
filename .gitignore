@@ -1,0 +1,14 @@
+# 依赖
+node_modules/
+.wrangler/
+
+# 本地调试产物
+.shots*/
+.edge-*/
+*.bak
+*.log
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
