@@ -47,13 +47,26 @@ npm run dev            # = node server.js，默认 http://127.0.0.1:8788/
 
 ## 三、补充内容
 
-### 文字
-编辑 `public/data/profile.json`，保存刷新即可。字段说明：
+### 加一个人物
+编辑 `public/data/profile.json`，往 `characters` 数组里加一项即可（页面上的切换栏和人物索引会自动多一张卡片）：
+
+```json
+{
+  "site": { "title": "猎奇人物志", "en": "BIZARRE PROFILES", "mark": "志" },
+  "characters": [ { "id": "wangrui", "name": "王睿", ... }, { "id": "新人", "name": "名字", ... } ]
+}
+```
+
+> `id` 必须唯一，它同时决定这个人的照片文件夹名（见下）。
+
+### 每个人物的字段
+`characters` 数组里每一项可用的字段：
 
 | 字段 | 作用 |
 | --- | --- |
+| `id` | 唯一标识，也用作照片文件夹名 |
 | `name` / `en` | 姓名与英文名 |
-| `avatar` | 头像路径，如 `photos/avatar.jpg`；留空显示姓氏首字 |
+| `avatar` | 头像路径，如 `photos/wangrui/avatar.jpg`；留空显示姓氏首字 |
 | `tagline` | 首页简介 |
 | `chips` | 首页小标签数组 |
 | `stats` | 数据条 `{ value, label }` |
@@ -64,11 +77,21 @@ npm run dev            # = node server.js，默认 http://127.0.0.1:8788/
 | `works` | 「作品」`{ title, desc, tags, link }` |
 | `contacts` | 「联系」`{ icon, label, value, link }` |
 
-### 照片
-1. 把图片放进 `public/photos/`（可建子文件夹分类，支持 jpg/png/webp/gif/avif/bmp/svg）
-2. 想加标题说明就编辑 `public/photos/captions.json`：
+### 照片（按人物分相册）
+支持 jpg/png/webp/gif/avif/bmp/svg，按**文件夹名**归属到人物：
+
+```
+public/photos/
+├─ wangrui/1.jpg         → 只出现在「王睿」的相册
+├─ tangchen/a.png        → 只出现在「唐晨」的相册
+├─ zhangransheng/…       → 只出现在「张冉生」的相册
+└─ 合影.jpg              → 放在根目录的，所有人物共用
+```
+
+1. 把图片放进对应文件夹
+2. 想加标题说明就编辑 `public/photos/captions.json`（key 写相对路径）：
    ```json
-   { "毕业照.jpg": { "title": "毕业那天", "desc": "2024 年夏" } }
+   { "wangrui/毕业照.jpg": { "title": "毕业那天", "desc": "2024 年夏" } }
    ```
 3. **运行 `npm run photos`** 生成 `photos/index.json`（静态托管必需）
 

@@ -440,6 +440,58 @@ html[data-theme="light"] .bar{background:rgba(30,40,90,.1)}
   html{scroll-behavior:auto}
 }
 
+/* ================= 人物切换（猎奇人物志） ================= */
+.cast-bar{
+  display:flex;flex-wrap:wrap;gap:10px;
+  margin-bottom:clamp(26px,4vw,44px);position:relative;z-index:2;
+}
+.cast-pill{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:9px 18px 9px 11px;border-radius:999px;cursor:pointer;font:inherit;
+  background:var(--glass);border:1px solid var(--glass-brd);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  color:var(--ink-dim);font-size:14px;font-weight:600;
+  transition:transform .3s var(--ease),color .3s,background .3s,box-shadow .3s,border-color .3s;
+}
+.cast-pill .cp-idx{
+  font-size:10.5px;letter-spacing:.12em;padding:3px 7px;border-radius:999px;
+  background:rgba(255,255,255,.10);border:1px solid var(--glass-brd);color:var(--ink-faint);
+}
+.cast-pill:hover{transform:translateY(-2px);color:var(--ink);background:var(--glass-2)}
+.cast-pill.is-active{
+  color:#fff;border-color:transparent;
+  background:linear-gradient(120deg,var(--accent),#5b8cff 55%,var(--accent-2));
+  box-shadow:0 16px 34px -14px rgba(124,92,255,.95);
+}
+.cast-pill.is-active .cp-idx{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.38);color:#fff}
+
+.cast-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.cast-card{
+  position:relative;text-align:left;cursor:pointer;font:inherit;color:var(--ink);
+  border-radius:var(--r);padding:26px 24px 22px;
+  transition:transform .4s var(--ease),box-shadow .4s,border-color .3s;
+}
+.cast-card:hover{transform:translateY(-8px)}
+.cast-card .cc-num{display:block;font-size:11.5px;letter-spacing:.3em;color:var(--accent-2);font-weight:700;margin-bottom:12px}
+.cast-card .cc-body h3{margin:0;font-size:22px;letter-spacing:.04em}
+.cast-card .cc-body em{
+  display:block;font-style:normal;font-size:10.5px;letter-spacing:.24em;
+  color:var(--ink-faint);text-transform:uppercase;margin-top:5px;
+}
+.cast-card .cc-body p{
+  margin:12px 0 0;color:var(--ink-dim);font-size:14px;line-height:1.65;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.cast-card .cc-go{display:inline-block;margin-top:18px;font-size:13px;font-weight:600;color:var(--accent-2)}
+.cast-card.is-active{
+  border-color:rgba(124,92,255,.5);
+  box-shadow:var(--shadow),0 0 0 1px rgba(124,92,255,.45),0 0 70px -20px rgba(124,92,255,.75);
+}
+.cast-card.is-active .cc-go{color:var(--ink)}
+
+/* 切换动画进行时，暂时不收点击 */
+body.switching{pointer-events:none}
+
 /* ================= 响应式 ================= */
 @media(max-width:900px){
   .grid-2{grid-template-columns:1fr}
@@ -457,6 +509,7 @@ html[data-theme="light"] .bar{background:rgba(30,40,90,.1)}
   .hero-inner{justify-content:center;text-align:center}
   .hero-text{flex:1 1 100%}
   .chips,.hero-cta{justify-content:center}
+  .cast-bar{justify-content:center}
   .hero-tagline{margin-left:auto;margin-right:auto}
   .timeline{padding-left:22px}
   .tl-item::before{left:-22px}
