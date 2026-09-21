@@ -44,6 +44,7 @@
   /* 3D 倾斜：鼠标在卡片上移动时轻微转动，离开复位 */
   function addTilt(node, max) {
     if (!node || !window.matchMedia || !window.matchMedia("(pointer:fine)").matches) return;
+    if (window.innerWidth <= 900) return;   /* 手机上不做倾斜，省性能 */
     max = max || 6;
     node.addEventListener("mouseenter", function () { node.classList.add("tilting"); });
     node.addEventListener("mousemove", function (e) {
@@ -450,6 +451,11 @@
   }
 
   /* ---------------- 散开 / 展开动画 ---------------- */
+  /* 触屏 / 窄屏：判定为"精简模式" */
+  function isCoarse() {
+    return (window.matchMedia && window.matchMedia("(pointer:coarse)").matches) || window.innerWidth <= 900;
+  }
+
   var ANIM_SEL = [
     "#home .avatar-wrap", "#home .hero-text > *", "#home .stats",
     ".section-head", ".gallery-bar", ".card",
@@ -457,8 +463,17 @@
     ".dossier", ".quote", ".relation"
   ].join(",");
 
+  /* 手机上同时给几十个「玻璃+模糊」元素做动画会让 GPU 顶不住，
+     所以只动少量大块，并且不做缩放（缩放会逼着重新计算模糊）。 */
+  var ANIM_SEL_MOBILE = [
+    "#home .avatar-wrap", "#home .hero-text > *", "#home .stats",
+    ".section-head", ".card", ".tl-item", ".work", ".dossier", ".quote", ".relation"
+  ].join(",");
+  var MOBILE_MAX = 16;
+
   function animBlocks() {
-    var all = $$(ANIM_SEL);
+    var all = $$(isCoarse() ? ANIM_SEL_MOBILE : ANIM_SEL);
+    if (isCoarse()) return all.slice(0, MOBILE_MAX);
     /* 去掉被其它块包含的，避免嵌套叠加 */
     return all.filter(function (x) {
       return !all.some(function (o) { return o !== x && o.contains(x); });
@@ -479,30 +494,36 @@
 
   /* 旧内容：由中心向四周错落散开 */
   function scatterOut() {
+    var coarse = isCoarse();
     var els = animBlocks(), anims = [];
     els.forEach(function (x) {
       var v = dirOf(x);
-      var spread = 90 + Math.min(v.d, 700) * 0.28;
-      var delay = Math.min(v.d * 0.26, 220);
+      var cap = coarse ? 460 : 700;
+      var spread = (coarse ? 54 : 90) + Math.min(v.d, cap) * (coarse ? 0.14 : 0.28);
+      var delay = Math.min(v.d * (coarse ? 0.12 : 0.26), coarse ? 96 : 220);
+      var out = "translate(" + (v.x * spread).toFixed(1) + "px," + (v.y * spread).toFixed(1) + "px)" + (coarse ? "" : " scale(.9)");
       anims.push(x.animate([
-        { transform: "translate(0,0) scale(1)", opacity: 1 },
-        { transform: "translate(" + (v.x * spread).toFixed(1) + "px," + (v.y * spread).toFixed(1) + "px) scale(.9)", opacity: 0 }
-      ], { duration: 420, delay: delay, easing: "cubic-bezier(.4,0,.2,1)", fill: "both" }));
+        { transform: "translate(0,0)", opacity: 1 },
+        { transform: out, opacity: 0 }
+      ], { duration: coarse ? 300 : 420, delay: delay, easing: "cubic-bezier(.4,0,.2,1)", fill: "both" }));
     });
     return waitAll(anims);
   }
 
   /* 新内容：由中心向四周错落展开 */
   function unfoldIn() {
+    var coarse = isCoarse();
     var els = animBlocks(), anims = [];
     els.forEach(function (x) {
       var v = dirOf(x);
-      var spread = 80 + Math.min(v.d, 700) * 0.22;
-      var delay = Math.min(v.d * 0.30, 260);
+      var cap = coarse ? 460 : 700;
+      var spread = (coarse ? 44 : 80) + Math.min(v.d, cap) * (coarse ? 0.12 : 0.22);
+      var delay = Math.min(v.d * (coarse ? 0.16 : 0.30), coarse ? 120 : 260);
+      var from = "translate(" + (-v.x * spread).toFixed(1) + "px," + (-v.y * spread).toFixed(1) + "px)" + (coarse ? "" : " scale(.86)");
       anims.push(x.animate([
-        { transform: "translate(" + (-v.x * spread).toFixed(1) + "px," + (-v.y * spread).toFixed(1) + "px) scale(.86)", opacity: 0 },
-        { transform: "translate(0,0) scale(1)", opacity: 1 }
-      ], { duration: 560, delay: delay, easing: "cubic-bezier(.16,.84,.3,1)", fill: "both" }));
+        { transform: from, opacity: 0 },
+        { transform: "translate(0,0)", opacity: 1 }
+      ], { duration: coarse ? 380 : 560, delay: delay, easing: "cubic-bezier(.16,.84,.3,1)", fill: "both" }));
     });
     return waitAll(anims);
   }

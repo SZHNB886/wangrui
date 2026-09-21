@@ -574,29 +574,166 @@ body.switching{pointer-events:none}
 *::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,var(--accent),var(--accent-2));background-clip:content-box}
 html{scrollbar-width:thin;scrollbar-color:rgba(124,92,255,.6) transparent}
 
-/* ================= 响应式 ================= */
-@media(max-width:900px){
-  .grid-2{grid-template-columns:1fr}
+/* ================= 触屏点按反馈（去掉蓝色块闪） ================= */
+html,body{-webkit-tap-highlight-color:transparent;tap-highlight-color:transparent}
+button,a,[role="tab"],.cast-pill,.cast-card,.relation,.gitem,.icon-btn,.contact,.btn,.chip{
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+  touch-action:manipulation;
+}
+.cast-pill:active,.icon-btn:active,.cast-card:active,.relation:active,.contact:active,
+.btn:active,.chip:active,.cast-pill.is-active:active{
+  transform:scale(.97);transition:transform .1s ease;
+}
+.btn.primary:active{transform:translateY(1px) scale(.985)}
+.cast-card:active,.relation:active{transform:scale(.985) translateY(-2px)}
+
+/* ================= 手机 / 触屏：性能层 =================
+   卡顿主因：会动的巨型模糊光团 + 磨砂玻璃，每帧都要重新模糊背后的内容。
+   触屏上一律：光团改静态、模糊降档、去掉混合模式与噪点、小元件不用玻璃。 */
+@media (pointer:coarse),(max-width:900px){
+  .blob{animation:none!important;mix-blend-mode:normal!important;filter:blur(34px)!important;will-change:auto!important}
+  .b3,.b4{display:none}
+  .b1{opacity:.46;width:78vw;height:78vw}
+  .b2{opacity:.30;width:66vw;height:66vw}
+  .bg-noise{display:none}
+  .bg-grid{background-size:46px 46px}
+  :root{--blur:14px}
+  .glass-strong{backdrop-filter:blur(18px) saturate(140%)!important;-webkit-backdrop-filter:blur(18px) saturate(140%)!important}
+  .chip,.contact,.icon-btn,.scroll-hint,.cast-pill,.avatar,.kw,.tag,.nav-links{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  }
+  .avatar{animation:none}
+  .status-dot{animation:none;box-shadow:none}
+  .avatar-ring{animation-duration:90s}
+  .scroll-hint span{animation:none;opacity:.9}
+  .work::after{display:none}
+}
+
+/* ================= 手机 / 触屏：专属布局 ================= */
+@media (pointer:coarse),(max-width:900px){
+  body{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+  input,select,textarea{font-size:16px}
+
+  /* 顶部导航 */
+  .nav-wrap{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0px))}
+  .nav{padding:8px 12px;gap:12px;border-radius:22px}
+  .nav.shrunk{padding:6px 10px}
+  .brand-mark{width:34px;height:34px;font-size:17px;border-radius:11px}
+  .brand-text strong{font-size:15px}
+  .brand-text em{display:none}
+  .icon-btn{width:40px;height:40px}
   .only-mobile{display:grid}
   .nav-links{
-    position:absolute;top:calc(100% + 10px);left:14px;right:14px;flex-direction:column;
-    padding:12px;border-radius:var(--r);background:var(--glass-2);border:1px solid var(--glass-brd);
-    backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
-    opacity:0;visibility:hidden;transform:translateY(-10px);transition:.3s var(--ease);
+    position:absolute;top:calc(100% + 8px);left:10px;right:10px;flex-direction:column;
+    padding:8px;border-radius:var(--r);
+    background:rgba(8,11,22,.96);border:1px solid var(--glass-brd);
+    opacity:0;visibility:hidden;transform:translateY(-10px);transition:.28s var(--ease);
   }
   .nav-links.open{opacity:1;visibility:visible;transform:none}
-  .nav-links a{padding:12px 16px}
-  .nav-wrap{position:fixed}
-  .hero{padding-top:112px;min-height:auto}
-  .hero-inner{justify-content:center;text-align:center}
+  .nav-links a{padding:14px 16px;font-size:15.5px;border-radius:12px}
+
+  /* 人物切换改成底部悬浮坞 —— 手机上一只手就能切人 */
+  .cast-bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:70;margin:0;
+    display:flex;flex-wrap:nowrap;gap:8px;justify-content:flex-start;
+    overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
+    background:rgba(6,8,16,.94);
+    border-top:1px solid var(--glass-brd);
+  }
+  .cast-bar::-webkit-scrollbar{display:none}
+  .cast-pill{flex:0 0 auto;padding:10px 16px 10px 10px;font-size:13.5px}
+  .cast-pill .cp-idx{font-size:10px;padding:2px 6px}
+
+  /* 首屏：底部留出悬浮坞的高度，别被压住 */
+  .hero{padding:104px 0 calc(96px + env(safe-area-inset-bottom,0px));min-height:auto}
+  .scroll-hint{display:none}
+  .hero-inner{justify-content:center;text-align:center;gap:20px}
   .hero-text{flex:1 1 100%}
-  .chips,.hero-cta{justify-content:center}
-  .cast-bar{justify-content:center}
-  .hero-tagline{margin-left:auto;margin-right:auto}
-  .timeline{padding-left:22px}
-  .tl-item::before{left:-22px}
+  .avatar{width:clamp(108px,30vw,148px)}
+  .avatar-ring{inset:-10px}
+  .status-dot{right:4px;bottom:8px;width:17px;height:17px}
+  .eyebrow{font-size:10px;letter-spacing:.26em}
+  .hero-name{font-size:clamp(42px,14vw,68px);letter-spacing:.05em}
+  .hero-tagline{margin:14px auto 0;font-size:15px;line-height:1.78;max-width:34ch}
+  .chips{justify-content:center;gap:7px;margin-top:18px}
+  .chip{font-size:12.5px;padding:6px 13px}
+  .hero-cta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}
+  .btn{justify-content:center;padding:14px 16px;font-size:14.5px;min-height:48px}
+  .stats{margin-top:26px;grid-template-columns:repeat(2,1fr);padding:6px}
+  .stat{padding:16px 8px}
+  .stat b{font-size:23px}
+  .stat span{font-size:10.5px;letter-spacing:.12em}
+
+  /* 章节通用 */
+  .section{padding:50px 0}
+  .section-head{margin-bottom:18px}
+  .section-head h2{font-size:clamp(26px,8.4vw,34px)}
+  .section-head .kicker{font-size:11px;letter-spacing:.24em}
+  .section-head .sub{font-size:11px;letter-spacing:.26em}
+  .card{padding:20px 18px}
+  .prose p{font-size:15px;line-height:1.8}
+
+  /* 人物索引 / 关系 / 作品：单列 */
+  .cast-grid,.relations,.works,.contacts,.grid-2{grid-template-columns:1fr}
+  .gallery{grid-template-columns:repeat(2,1fr);gap:10px}
+  .gitem{aspect-ratio:1/1;border-radius:16px}
+  .cast-card{padding:22px 20px}
+  .cast-card .cc-body h3{font-size:20px}
+  .relation{padding:20px}
+
+  /* 档案条两列 */
+  .dossier{grid-template-columns:repeat(2,1fr);padding:5px;gap:2px}
+  .dos-cell{padding:12px 14px}
+  .dos-cell small{font-size:10px;letter-spacing:.18em}
+  .dos-cell b{font-size:15px;margin-top:5px}
+
+  /* 语录 */
+  .quote{padding:26px 20px 24px}
+  .quote::before{font-size:92px;left:8px;top:-10px}
+  .quote blockquote{font-size:17px;line-height:1.72}
+  .quote figcaption{font-size:11.5px;letter-spacing:.16em;margin-top:12px}
+
+  /* 关键词 / 时间线 */
+  .keywords{margin-top:18px;padding-top:16px;gap:7px}
+  .kw{font-size:11.5px;padding:5px 11px}
+  .timeline{padding-left:20px}
+  .tl-item{padding-bottom:20px}
+  .tl-item::before{left:-20px;width:12px;height:12px;top:8px}
+  .tl-card{padding:16px 16px}
+  .tl-card h3{font-size:16.5px}
+  .tl-card p{font-size:14px}
+  .tl-time{font-size:11.5px;letter-spacing:.16em}
+
+  /* 专长 */
+  .skills{grid-template-columns:1fr;gap:12px}
+  .bar{height:6px}
+
+  /* 页脚 */
+  .footer{padding:16px 14px 24px}
+  .footer-inner{padding:16px 18px;font-size:12.5px;flex-direction:column;gap:6px}
+
+  /* 灯箱：手机上贴边、按钮做大 */
+  .lightbox{padding:12px}
+  .lb-body{border-radius:16px;max-width:100%}
+  .lb-body img{max-height:64vh}
+  .lb-body figcaption{padding:12px 16px;font-size:13px}
+  .lb-close{top:calc(10px + env(safe-area-inset-top,0px));right:12px;width:46px;height:46px}
+  .lb-nav{width:46px;height:46px;font-size:24px}
+  .lb-prev{left:8px}
+  .lb-next{right:8px}
 }
-@media(max-width:520px){
-  .gallery{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-  .stats{grid-template-columns:repeat(2,1fr)}
+
+/* 窄屏再收一档 */
+@media(max-width:400px){
+  .hero-name{font-size:clamp(34px,13vw,46px)}
+  .hero-tagline{font-size:14.5px}
+  .dos-cell b{font-size:14px}
+  .cast-pill{font-size:12.5px;padding:9px 13px 9px 9px}
+  .gallery{gap:8px}
+}
+@media(max-width:340px){
+  .cast-pill .cp-name{display:none}
 }
