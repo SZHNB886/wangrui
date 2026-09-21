@@ -599,7 +599,8 @@ button,a,[role="tab"],.cast-pill,.cast-card,.relation,.gitem,.icon-btn,.contact,
   /* 1. 全部去掉磨砂 */
   .glass,.glass-strong,.nav,.nav.shrunk,.cast-card,.relation,.gitem,.card,.dossier,.stats,
   .quote,.tl-card,.contact,.chip,.nav-links,.avatar,.icon-btn,.scroll-hint,.cast-pill,
-  .empty,.kw,.tag,.lb-body,.lb-close,.lb-nav,.lightbox,.brand-mark,.stat{
+  .empty,.kw,.tag,.lb-body,.lb-close,.lb-nav,.lightbox,.brand-mark,.stat,
+  .btn,.btn.ghost,.btn.primary{
     backdrop-filter:none !important;
     -webkit-backdrop-filter:none !important;
   }
