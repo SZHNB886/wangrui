@@ -469,7 +469,7 @@
     "#home .avatar-wrap", "#home .hero-text > *", "#home .stats",
     ".section-head", ".card", ".tl-item", ".work", ".dossier", ".quote", ".relation"
   ].join(",");
-  var MOBILE_MAX = 16;
+  var MOBILE_MAX = 10;
 
   function animBlocks() {
     var all = $$(isCoarse() ? ANIM_SEL_MOBILE : ANIM_SEL);
@@ -489,7 +489,14 @@
   function waitAll(anims) {
     return Promise.all(anims.map(function (a) {
       return a.finished ? a.finished.catch(function () {}) : Promise.resolve();
-    })).then(function () { anims.forEach(function (a) { try { a.cancel(); } catch (e) {} }); });
+    })).then(function () {
+      anims.forEach(function (a) {
+        try {
+          if (a.effect && a.effect.target) a.effect.target.style.willChange = "";
+          a.cancel();
+        } catch (e) {}
+      });
+    });
   }
 
   /* 旧内容：由中心向四周错落散开 */
@@ -502,6 +509,7 @@
       var spread = (coarse ? 54 : 90) + Math.min(v.d, cap) * (coarse ? 0.14 : 0.28);
       var delay = Math.min(v.d * (coarse ? 0.12 : 0.26), coarse ? 96 : 220);
       var out = "translate(" + (v.x * spread).toFixed(1) + "px," + (v.y * spread).toFixed(1) + "px)" + (coarse ? "" : " scale(.9)");
+      x.style.willChange = coarse ? "transform, opacity" : "";   /* 提前提升图层，避免动画中途才提升导致卡一下 */
       anims.push(x.animate([
         { transform: "translate(0,0)", opacity: 1 },
         { transform: out, opacity: 0 }
@@ -520,6 +528,7 @@
       var spread = (coarse ? 44 : 80) + Math.min(v.d, cap) * (coarse ? 0.12 : 0.22);
       var delay = Math.min(v.d * (coarse ? 0.16 : 0.30), coarse ? 120 : 260);
       var from = "translate(" + (-v.x * spread).toFixed(1) + "px," + (-v.y * spread).toFixed(1) + "px)" + (coarse ? "" : " scale(.86)");
+      x.style.willChange = coarse ? "transform, opacity" : "";
       anims.push(x.animate([
         { transform: from, opacity: 0 },
         { transform: "translate(0,0)", opacity: 1 }

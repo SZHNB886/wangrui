@@ -589,25 +589,59 @@ button,a,[role="tab"],.cast-pill,.cast-card,.relation,.gitem,.icon-btn,.contact,
 .cast-card:active,.relation:active{transform:scale(.985) translateY(-2px)}
 
 /* ================= 手机 / 触屏：性能层 =================
-   卡顿主因：会动的巨型模糊光团 + 磨砂玻璃，每帧都要重新模糊背后的内容。
-   触屏上一律：光团改静态、模糊降档、去掉混合模式与噪点、小元件不用玻璃。 */
+   ── 卡顿头号元凶：backdrop-filter（磨砂）
+      玻璃每帧都要重新模糊背后内容；被移动/缩放时模糊要整块重算。
+      手机上光团本来就在动、滚动时背景也在变，于是每一帧都在重算模糊。
+   ── 处理：手机上彻底不用 backdrop-filter，改用「带色调的半透明填充 +
+      亮边 + 顶部高光 + 斜向反光」来维持玻璃观感（观感保留约九成，GPU 开销几乎归零）。
+   ── 其余：光团静止降模糊、去掉混合模式/噪点/drop-shadow 滤镜。 */
 @media (pointer:coarse),(max-width:900px){
+  /* 1. 全部去掉磨砂 */
+  .glass,.glass-strong,.nav,.nav.shrunk,.cast-card,.relation,.gitem,.card,.dossier,.stats,
+  .quote,.tl-card,.contact,.chip,.nav-links,.avatar,.icon-btn,.scroll-hint,.cast-pill,
+  .empty,.kw,.tag,.lb-body,.lb-close,.lb-nav,.lightbox,.brand-mark,.stat{
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+  }
+  /* 2. 用半透明色调顶替模糊，观感接近 */
+  .glass{
+    background:linear-gradient(158deg,rgba(255,255,255,.12),rgba(255,255,255,0) 46%),
+               rgba(22,28,56,.60) !important;
+  }
+  .glass-strong{
+    background:linear-gradient(158deg,rgba(255,255,255,.16),rgba(255,255,255,0) 50%),
+               rgba(26,33,64,.76) !important;
+  }
+  .nav{ background:rgba(10,13,26,.72) !important; }
+  .nav.shrunk{ background:rgba(10,13,26,.92) !important; }
+  .nav-links{ background:rgba(8,11,22,.98) !important; }
+  .cast-bar{ background:rgba(6,8,16,.96) !important; }
+  .lightbox{ background:rgba(4,6,14,.94) !important; }
+
+  /* 3. 光团：静止 + 降模糊 + 去混合模式 */
   .blob{animation:none!important;mix-blend-mode:normal!important;filter:blur(34px)!important;will-change:auto!important}
   .b3,.b4{display:none}
   .b1{opacity:.46;width:78vw;height:78vw}
   .b2{opacity:.30;width:66vw;height:66vw}
   .bg-noise{display:none}
   .bg-grid{background-size:46px 46px}
-  :root{--blur:14px}
-  .glass-strong{backdrop-filter:blur(18px) saturate(140%)!important;-webkit-backdrop-filter:blur(18px) saturate(140%)!important}
-  .chip,.contact,.icon-btn,.scroll-hint,.cast-pill,.avatar,.kw,.tag,.nav-links{
-    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-  }
+
+  /* 4. 去掉大滤镜与常驻层 */
+  .hero-name{filter:none!important}
+  .cursor-glow{display:none!important}
+  .avatar-fallback{text-shadow:none}
+  .glass-strong,.glass{box-shadow:var(--shadow),inset 0 1px 0 0 rgba(255,255,255,.18)}
+
+  /* 5. 关掉非必要的持续动画 */
   .avatar{animation:none}
   .status-dot{animation:none;box-shadow:none}
   .avatar-ring{animation-duration:90s}
-  .scroll-hint span{animation:none;opacity:.9}
+  .scroll-hint{display:none}
   .work::after{display:none}
+
+  /* 6. 滚动显现缩短时长（注意：不要给 transform 加 !important，
+         CSS 里 !important 的优先级高于 Web Animations，会把切换动画废掉） */
+  .reveal{transition:opacity .6s var(--ease-io),transform .6s var(--ease-io)}
 }
 
 /* ================= 手机 / 触屏：专属布局 ================= */
