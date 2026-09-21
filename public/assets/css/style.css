@@ -492,6 +492,88 @@ html[data-theme="light"] .bar{background:rgba(30,40,90,.1)}
 /* 切换动画进行时，暂时不收点击 */
 body.switching{pointer-events:none}
 
+/* ================= 高级质感层 ================= */
+/* 顶部阅读进度 */
+.progress{
+  position:fixed;top:0;left:0;right:0;height:2px;z-index:100;
+  transform:scaleX(0);transform-origin:0 50%;pointer-events:none;
+  background:linear-gradient(90deg,var(--accent),#5b8cff 45%,var(--accent-2));
+  box-shadow:0 0 14px rgba(124,92,255,.85);
+}
+
+/* 光标柔光 */
+.cursor-glow{
+  position:fixed;left:0;top:0;width:560px;height:560px;margin:-280px 0 0 -280px;
+  border-radius:50%;pointer-events:none;z-index:1;opacity:0;
+  background:radial-gradient(circle,rgba(124,92,255,.13),rgba(34,211,238,.06) 45%,transparent 70%);
+  mix-blend-mode:screen;transition:opacity .45s var(--ease);
+}
+.cursor-glow.on{opacity:1}
+
+/* 档案信息条 */
+.dossier{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  border-radius:var(--r);padding:6px;gap:2px;margin-bottom:20px;
+}
+.dos-cell{padding:14px 18px;border-radius:var(--r-sm);transition:background .3s}
+.dos-cell:hover{background:var(--glass-2)}
+.dos-cell small{display:block;font-size:10.5px;letter-spacing:.24em;color:var(--ink-faint)}
+.dos-cell b{display:block;margin-top:6px;font-size:15.5px;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+
+/* 关键词 */
+.keywords{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;padding-top:20px;border-top:1px solid var(--glass-brd)}
+.kw{
+  font-size:12px;padding:5px 12px;border-radius:999px;color:var(--ink-dim);
+  background:rgba(124,92,255,.12);border:1px solid rgba(124,92,255,.26);
+  transition:transform .25s var(--ease),color .25s,background .25s;
+}
+.kw:hover{transform:translateY(-2px);color:var(--ink);background:rgba(124,92,255,.2)}
+
+/* 语录 */
+.quote{
+  margin:20px 0 0;border-radius:var(--r);padding:clamp(26px,3.6vw,44px);
+  position:relative;overflow:hidden;
+}
+.quote::before{
+  content:"\201C";position:absolute;left:16px;top:-14px;line-height:1;
+  font-size:140px;font-family:Georgia,"Times New Roman",serif;
+  color:rgba(124,92,255,.16);pointer-events:none;
+}
+.quote blockquote{
+  margin:0;position:relative;font-size:clamp(17px,2.3vw,24px);
+  line-height:1.72;letter-spacing:.01em;font-weight:500;
+}
+.quote figcaption{margin-top:16px;font-size:12.5px;letter-spacing:.2em;color:var(--ink-faint)}
+
+/* 人物关系 */
+.relations{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.relation{
+  position:relative;text-align:left;font:inherit;color:var(--ink);cursor:pointer;
+  border-radius:var(--r);padding:24px;
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease),border-color .3s;
+}
+.relation:hover{border-color:rgba(124,92,255,.45);box-shadow:var(--shadow),0 0 60px -22px rgba(124,92,255,.8)}
+.relation .rel-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.relation .rel-code{font-size:11px;letter-spacing:.2em;color:var(--accent-2);font-weight:700;font-variant-numeric:tabular-nums}
+.relation h3{margin:0;font-size:19px;letter-spacing:.03em}
+.relation .rel-type{margin:12px 0 0;font-size:13px;color:var(--ink);font-weight:600}
+.relation .rel-note{margin:6px 0 0;font-size:14px;color:var(--ink-dim);line-height:1.65}
+.relation .cc-go{display:inline-block;margin-top:16px;font-size:13px;font-weight:600;color:var(--accent-2)}
+.relation:disabled{cursor:default;opacity:.55}
+
+/* 倾斜时不走慢速过渡 */
+.cast-card.tilting,.relation.tilting,.work.tilting{transition:transform .18s ease-out}
+
+/* 自定义滚动条 */
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,rgba(124,92,255,.6),rgba(34,211,238,.5));
+  border-radius:99px;border:3px solid transparent;background-clip:content-box;
+}
+*::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,var(--accent),var(--accent-2));background-clip:content-box}
+html{scrollbar-width:thin;scrollbar-color:rgba(124,92,255,.6) transparent}
+
 /* ================= 响应式 ================= */
 @media(max-width:900px){
   .grid-2{grid-template-columns:1fr}

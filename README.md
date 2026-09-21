@@ -67,14 +67,18 @@ npm run dev            # = node server.js，默认 http://127.0.0.1:8788/
 | `id` | 唯一标识，也用作照片文件夹名 |
 | `name` / `en` | 姓名与英文名 |
 | `avatar` | 头像路径，如 `photos/wangrui/avatar.jpg`；留空显示姓氏首字 |
+| `dossier` | 档案信息条 `{ label, value }`，如档案编号 / 密级 / 建档 / 状态 |
 | `tagline` | 首页简介 |
 | `chips` | 首页小标签数组 |
-| `stats` | 数据条 `{ value, label }` |
+| `stats` | 数据条 `{ value, label }`；**值是数字时会做滚动计数动画** |
 | `about` | 「关于」段落数组 |
+| `keywords` | 关于底部的关键词标签数组 |
+| `quote` | 语录 `{ text, by }`，显示为一张引号卡 |
 | `facts` | 右侧信息栏 `{ label, value }` |
 | `timeline` | 「经历」`{ time, title, desc, tags }` |
 | `skills` | 「专长」`{ name, level }`，level 为 0–100 |
 | `works` | 「作品」`{ title, desc, tags, link }` |
+| `relations` | 「关系」`{ id, name, rel, note }`，id 写另一个人物的 id，点卡片可直接跳过去 |
 | `contacts` | 「联系」`{ icon, label, value, link }` |
 
 ### 照片（按人物分相册）
@@ -153,6 +157,10 @@ git push -u origin main
 
 - 首页：头像圈、渐变姓名、简介、标签、按钮、数据条
 - 关于 / 经历时间线 / 专长进度条 / 作品卡片 / 相册（灯箱 + ←→ + Esc）/ 联系
+- **档案质感**：档案编号条、密级、关键词标签、语录卡、人物关系卡
+- **高级交互**：顶部阅读进度条、卡片 3D 倾斜、数字滚动计数、光标柔光、自定义滚动条
+- **键盘 `1` `2` `3`** 直接切换人物
+- **地址栏可分享**：切到某人时地址栏变成 `#tangchen`，把这个链接发出去对方打开就是同一个人，刷新也停在这儿
 - 明暗主题切换（记忆在浏览器）
 - 滚动显现：**进出双向、可反复播放**（滚进淡入、滚出淡出）
 - 移动端自适应、毛玻璃导航、极光背景

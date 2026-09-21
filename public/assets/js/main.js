@@ -23,6 +23,42 @@
   }
   function pad(n) { return (n < 10 ? "0" : "") + n; }
 
+  /* 数字滚动：把 `12` / `3.5 年` 这类文本做递增动画；没有数字就原样返回 */
+  function countUp(node) {
+    var raw = node.textContent;
+    var m = raw.match(/^([^\d]*)(\d+(?:\.\d+)?)([\s\S]*)$/);
+    if (!m) return;
+    var pre = m[1], num = parseFloat(m[2]), suf = m[3];
+    var dec = (m[2].split(".")[1] || "").length;
+    var dur = 900, t0 = null;
+    function step(t) {
+      if (t0 === null) t0 = t;
+      var p = Math.min((t - t0) / dur, 1);
+      var e = 1 - Math.pow(1 - p, 3);
+      node.textContent = pre + (num * e).toFixed(dec) + suf;
+      if (p < 1) requestAnimationFrame(step); else node.textContent = raw;
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* 3D 倾斜：鼠标在卡片上移动时轻微转动，离开复位 */
+  function addTilt(node, max) {
+    if (!node || !window.matchMedia || !window.matchMedia("(pointer:fine)").matches) return;
+    max = max || 6;
+    node.addEventListener("mouseenter", function () { node.classList.add("tilting"); });
+    node.addEventListener("mousemove", function (e) {
+      var r = node.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      node.style.transform = "perspective(900px) rotateY(" + (px * max).toFixed(2) +
+        "deg) rotateX(" + (-py * max).toFixed(2) + "deg) translateY(-6px)";
+    });
+    node.addEventListener("mouseleave", function () {
+      node.style.transform = "";
+      node.classList.remove("tilting");
+    });
+  }
+
   /* ---------------- 主题 ---------------- */
   var root = document.documentElement;
   var THEME_KEY = "bizarre-theme";
@@ -175,6 +211,7 @@
       card.appendChild(body);
       card.appendChild(el("span", "cc-go", i === current ? "正在查看" : "查看档案 →"));
       card.addEventListener("click", function () { switchTo(i); });
+      addTilt(card, 7);
       grid.appendChild(card);
     });
   }
@@ -232,6 +269,7 @@
       stats.appendChild(d);
     });
     stats.classList.add("reveal");
+    $$(".stat b", stats).forEach(countUp);
 
     /* 关于 */
     var about = $("#aboutText");
@@ -305,6 +343,7 @@
         box.style.setProperty("--mx", (e.clientX - r.left) + "px");
         box.style.setProperty("--my", (e.clientY - r.top) + "px");
       });
+      addTilt(box, 5);
       wk.appendChild(box);
     });
 
@@ -321,6 +360,68 @@
       box.appendChild(t);
       ct.appendChild(box);
     });
+
+    /* 档案信息条 */
+    var dos = $("#dossier");
+    if (dos) {
+      dos.innerHTML = "";
+      (c.dossier || []).forEach(function (d) {
+        var cell = el("div", "dos-cell");
+        cell.appendChild(el("small", null, esc(d.label)));
+        cell.appendChild(el("b", null, esc(d.value)));
+        dos.appendChild(cell);
+      });
+      dos.hidden = !(c.dossier && c.dossier.length);
+    }
+
+    /* 关键词 */
+    var kw = $("#keywords");
+    if (kw) {
+      kw.innerHTML = "";
+      (c.keywords || []).forEach(function (k) { kw.appendChild(el("span", "kw", esc(k))); });
+      kw.hidden = !(c.keywords && c.keywords.length);
+    }
+
+    /* 语录 */
+    var q = $("#quote");
+    if (q) {
+      if (c.quote && c.quote.text) {
+        q.innerHTML = "";
+        q.appendChild(el("blockquote", null, esc(c.quote.text)));
+        q.appendChild(el("figcaption", null, "— " + esc(c.quote.by || c.name)));
+        q.hidden = false;
+      } else { q.hidden = true; }
+    }
+
+    /* 人物关系 */
+    var rl = $("#relationList");
+    if (rl) {
+      rl.innerHTML = "";
+      (c.relations || []).forEach(function (r) {
+        var idx = -1;
+        for (var k2 = 0; k2 < DATA.characters.length; k2++) {
+          if (DATA.characters[k2].id === r.id) idx = k2;
+        }
+        var t = idx >= 0 ? DATA.characters[idx] : null;
+        var card = el("button", "relation glass reveal");
+        card.type = "button";
+        var head = el("div", "rel-head");
+        head.appendChild(el("span", "rel-code", t && t.dossier && t.dossier[0] ? esc(t.dossier[0].value) : "—"));
+        head.appendChild(el("h3", null, esc(r.name || (t ? t.name : r.id))));
+        card.appendChild(head);
+        if (r.rel) card.appendChild(el("p", "rel-type", esc(r.rel)));
+        if (r.note) card.appendChild(el("p", "rel-note", esc(r.note)));
+        if (t) {
+          card.appendChild(el("span", "cc-go", "查看档案 →"));
+          card.addEventListener("click", function () { switchTo(idx); });
+          addTilt(card, 6);
+        } else {
+          card.disabled = true;
+        }
+        rl.appendChild(card);
+      });
+      rl.hidden = !(c.relations && c.relations.length);
+    }
 
     /* 相册（按人物过滤） */
     renderGallery(photosFor(c));
@@ -352,7 +453,8 @@
   var ANIM_SEL = [
     "#home .avatar-wrap", "#home .hero-text > *", "#home .stats",
     ".section-head", ".gallery-bar", ".card",
-    ".tl-item", ".work", ".gitem", ".contact", ".empty", ".footer-inner"
+    ".tl-item", ".work", ".gitem", ".contact", ".empty", ".footer-inner",
+    ".dossier", ".quote", ".relation"
   ].join(",");
 
   function animBlocks() {
@@ -420,6 +522,8 @@
       window.scrollTo(0, 0);
       current = i;
       markCastActive();
+      /* 把当前人物写进地址栏，刷新或分享都停在同一个人 */
+      if (history.replaceState) history.replaceState(null, "", "#" + DATA.characters[i].id);
       renderCharacter(DATA.characters[i], i);
       /* 进场交给 WAAPI，先让 .reveal 处于可见基底 */
       $$(".reveal").forEach(function (n) { n.classList.add("in"); });
@@ -544,6 +648,54 @@
       });
   }
 
+  /* ---------------- 高级质感特性 ---------------- */
+  function applyHash() {
+    var id = decodeURIComponent((location.hash || "").replace(/^#/, ""));
+    if (!id) return false;
+    for (var i = 0; i < DATA.characters.length; i++) {
+      if (DATA.characters[i].id === id) { if (i !== current) switchTo(i); return true; }
+    }
+    return false;
+  }
+
+  function initPremium() {
+    /* 顶部阅读进度条 */
+    var prog = $("#progress");
+    function upd() {
+      if (!prog) return;
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var p = h > 0 ? Math.min(Math.max(window.scrollY / h, 0), 1) : 0;
+      prog.style.transform = "scaleX(" + p.toFixed(4) + ")";
+    }
+    window.addEventListener("scroll", upd, { passive: true });
+    window.addEventListener("resize", upd);
+    upd();
+
+    /* 光标柔光（仅精确指针设备） */
+    var fine = window.matchMedia && window.matchMedia("(pointer:fine)").matches;
+    var glow = $("#cursorGlow");
+    if (glow && fine) {
+      window.addEventListener("mousemove", function (e) {
+        glow.style.transform = "translate3d(" + e.clientX + "px," + e.clientY + "px,0)";
+        glow.classList.add("on");
+      }, { passive: true });
+      document.addEventListener("mouseleave", function () { glow.classList.remove("on"); });
+    }
+
+    /* 数字键 1..N 切换人物 */
+    document.addEventListener("keydown", function (e) {
+      var t = e.target;
+      if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var n = parseInt(e.key, 10);
+      if (!isNaN(n) && n >= 1 && n <= DATA.characters.length) { e.preventDefault(); switchTo(n - 1); }
+    });
+
+    /* 地址栏哈希：?#tangchen 直接打开某人，刷新也停在这儿 */
+    window.addEventListener("hashchange", applyHash);
+    applyHash();
+  }
+
   /* ---------------- 启动 ---------------- */
   fetch("data/profile.json", { cache: "no-store" })
     .then(function (r) { if (!r.ok) throw new Error("404"); return r.json(); })
@@ -555,6 +707,7 @@
       renderCast();
       renderCharacter(DATA.characters[current], current);
       window.__switchTo = switchTo;   /* 便于调试 */
+      initPremium();
       loadPhotos();
     });
 })();

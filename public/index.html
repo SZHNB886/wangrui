@@ -24,6 +24,11 @@
 </div>
 
 <!-- ===== 顶部导航 ===== -->
+<!-- 阅读进度 -->
+<div class="progress" id="progress" aria-hidden="true"></div>
+<!-- 光标柔光 -->
+<div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+
 <header class="nav-wrap">
   <nav class="nav glass" id="nav">
     <a class="brand" href="#home">
@@ -40,6 +45,7 @@
       <li><a href="#skills">专长</a></li>
       <li><a href="#works">作品</a></li>
       <li><a href="#gallery">相册</a></li>
+      <li><a href="#relations">关系</a></li>
       <li><a href="#contact">联系</a></li>
     </ul>
     <div class="nav-actions">
@@ -101,12 +107,15 @@
       <h2>关于</h2>
       <p class="sub">About</p>
     </div>
+    <div class="dossier glass reveal" id="dossier"></div>
     <div class="grid-2">
       <article class="card glass reveal">
         <div class="prose" id="aboutText"></div>
+        <div class="keywords" id="keywords"></div>
       </article>
       <aside class="card glass reveal fact-card" id="facts"></aside>
     </div>
+    <figure class="quote glass reveal" id="quote" hidden></figure>
   </section>
 
   <!-- ===== 03 经历 ===== -->
@@ -160,10 +169,20 @@
     </div>
   </section>
 
-  <!-- ===== 07 联系 ===== -->
-  <section class="section" id="contact">
+  <!-- ===== 07 关系 ===== -->
+  <section class="section" id="relations">
     <div class="section-head reveal">
       <span class="kicker">07</span>
+      <h2>关系</h2>
+      <p class="sub">Relations</p>
+    </div>
+    <div class="relations" id="relationList"></div>
+  </section>
+
+  <!-- ===== 08 联系 ===== -->
+  <section class="section" id="contact">
+    <div class="section-head reveal">
+      <span class="kicker">08</span>
       <h2>联系</h2>
       <p class="sub">Contact</p>
     </div>
